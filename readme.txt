@@ -1,10 +1,10 @@
 === WP-DB-Backup ===
-Contributors: filosofo
+Contributors: filosofo, Mike Koepke
 Donate link: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Tags: mysql, database, backup, cron
 Requires at least: 2.0.3
-Tested up to: 3.2.1
-Stable tag: 2.2.3
+Tested up to: 3.5
+Stable tag: 2.2.4
 
 On-demand backup of your WordPress database.
 
@@ -21,9 +21,9 @@ Released under the terms of the GNU GPL, version 2.
 
 == Installation ==
 1. Extract the wp-db-backup/ folder file to /wp-content/plugins/
-1. Activate the plugin at your blog's Admin -> Plugins screen
-1. The plugin will attempt to create a directory /wp-content/backup-*/ inside your WordPress directory.
-1. You may need to make /wp-content writable (at least temporarily) for it to create this directory. 
+2. Activate the plugin at your blog's Admin -> Plugins screen
+3. The plugin will attempt to create a directory /wp-content/backup-*/ inside your WordPress directory.
+4. You may need to make /wp-content writable (at least temporarily) for it to create this directory.
    For example:
    `$ cd /wordpress/`
    `$ chgrp www-data wp-content` (where "`www-data`" is the group your FTP client uses)
@@ -71,19 +71,19 @@ Because it's a fairly safe bet that the core WordPress files will be successfull
 
 == Usage ==
 1. Click the Tools or Manage menu in your WordPress admin area.
-1. Click the Backup sub-menu.
+2. Click the Backup sub-menu.
 
-1. The plugin will look for other tables in the same database.  You may elect to include other tables in the backup.
+3. The plugin will look for other tables in the same database.  You may elect to include other tables in the backup.
   ** NOTE **
   Including other tables in your backup may substantially increase the size of the backup file!
   This may prevent you from emailing the backup file because it's too big.
 
-1. Select how you'd like the backup to be delivered:
+4. Select how you'd like the backup to be delivered:
 * Save to server : this will create a file in /wp-content/backup-*/ for you to retreive later
 * Download to your computer : this will send the backup file to your browser to be downloaded
 * Email : this will email the backup file to the address you specify
 
-1. Click "Backup!" and your database backup will be delivered to you.
+5. Click "Backup!" and your database backup will be delivered to you.
 
 The filename of the backup file will be of the form
    DB_prefix_date.sql
@@ -104,6 +104,12 @@ When having the database backup emailed or sent to your browser for immediate do
    *** SECURITY WARNING ***
 
 == Changelog ==
+
+= 2.2.4 =
+
+* WP 3.5 compat
+* Fix unknown index warnings
+* Cleanup php lint errors
 
 = 2.2.3 = 
 * Nonce check fix for localized WP users from Sergey Biryukov
