@@ -4,7 +4,7 @@ Donate link: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Tags: mysql, database, backup, cron
 Requires at least: 2.0.3
 Tested up to: 3.5
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 
 On-demand backup of your WordPress database.
 
@@ -104,6 +104,10 @@ When having the database backup emailed or sent to your browser for immediate do
    *** SECURITY WARNING ***
 
 == Changelog ==
+
+= 2.2.5 =
+
+* Fix unknown index message accessing WordPress upgrades screen
 
 = 2.2.4 =
 
