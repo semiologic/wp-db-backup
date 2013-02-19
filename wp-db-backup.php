@@ -5,7 +5,7 @@ Plugin URI: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Description: On-demand backup of your WordPress database. Navigate to <a href="edit.php?page=wp-db-backup">Tools &rarr; Backup</a> to get started.
 Author: Austin Matzko 
 Author URI: http://austinmatzko.com/
-Version: 2.2.5 fork
+Version: 2.2.6 fork
 
 Copyright 2010  Austin Matzko  (email : austin at pressedcode.com)
 
@@ -606,11 +606,13 @@ class wpdbBackup {
 	function admin_menu() {
 		$_page_hook = add_management_page(__('Backup','wp-db-backup'), __('Backup','wp-db-backup'), 'import', $this->basename, array(&$this, 'backup_menu'));
 		add_action('load-' . $_page_hook, array(&$this, 'admin_load'));
-		if ( function_exists('add_contextual_help') ) {
+/*		TODO: Change this over, if it's needed at all
+        if ( function_exists('add_help_tab') ) {
 			$text = $this->help_menu();
 			add_contextual_help($_page_hook, $text);
+            get_current_screen()->add_help_tab('Backup', __('Backup'), $text);
 		}
-	}
+*/	}
 
 	function fragment_menu() {
 		$page_hook = add_management_page(__('Backup','wp-db-backup'), __('Backup','wp-db-backup'), 'import', $this->basename, array(&$this, 'build_backup_script'));

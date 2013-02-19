@@ -105,6 +105,10 @@ When having the database backup emailed or sent to your browser for immediate do
 
 == Changelog ==
 
+= 2.2.6 =
+
+* Disable outdated context help
+
 = 2.2.5 =
 
 * Fix unknown index message accessing WordPress upgrades screen
