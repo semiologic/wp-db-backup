@@ -1,23 +1,23 @@
-=== WP-DB-Backup ===
+=== WP-DB-Backup Reloaded ===
 Contributors: filosofo, Mike_Koepke
 Donate link: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Tags: mysql, database, backup, cron
 Requires at least: 3.3
 Tested up to: 3.6
 Stable tag: trunk
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 On-demand backup of your WordPress database.
 
 == Description ==
 
-WP-DB-Backup allows you easily to backup your core WordPress database tables.  You may also backup other tables in the same database.
+WP-DB-Backup Reloaded allows you easily to backup your core WordPress database tables.  You may also backup other tables in the same database.
 
-Released under the terms of the GNU GPL, version 2.
-   http://www.fsf.org/licensing/licenses/gpl.html
+This is a forked version of the original WP-DB-Backup plugin from [Austin Matzko](http://austinmatzko.com/).
 
-              NO WARRANTY.
+This Reloaded version bring the plugin current with the latest WordPress releases.
 
-	Copyright (c) 2010 Austin Matzko
 
 == Installation ==
 1. Extract the wp-db-backup/ folder file to /wp-content/plugins/
@@ -104,6 +104,10 @@ When having the database backup emailed or sent to your browser for immediate do
    *** SECURITY WARNING ***
 
 == Changelog ==
+
+= 2.2.8 =
+
+- Renamed to WP-DB-Backup Reloaded
 
 = 2.2.7 =
 
