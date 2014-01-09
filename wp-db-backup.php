@@ -3,11 +3,11 @@
 Plugin Name: WordPress Database Backup Reloaded
 Plugin URI: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Description: On-demand backup of your WordPress database. Navigate to <a href="edit.php?page=wp-db-backup">Tools &rarr; Backup</a> to get started.
-Author: Mike Koepke
-Author URI: http://www.semiologic.com
-Version: 2.2.8 fork
+Author: Austin Matzko, Denis de Bernardy, Mike Koepke
+Author URI: hhttp://austinmatzko.com/
+Version: 2.3 fork
 
-Copyright 2010  Austin Matzko  (email : austin at pressedcode.com)
+Copyright 2013  Austin Matzko  (email : austin at pressedcode.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ Copyright 2010  Austin Matzko  (email : austin at pressedcode.com)
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+
+    Fork since v.2.2.3, by Denis de Bernardy <http://www.semiologic.com>
 */
 
 /**
@@ -183,10 +185,18 @@ class wpdbBackup {
 				}
 				break;
 			default:
-				$this->deliver_backup($this->backup_file, $via);
-				$this->error_display( 'frame' );
+				$success = $this->deliver_backup($this->backup_file, $via);
+				echo $this->error_display( 'frame', false );
+				
+				if ( $success ) {
+					echo '
+					<script type="text/javascript">
+						window.parent.setProgress("' . __('Backup Complete!','wp-db-backup') . '");
+					</script>
+					';
+				}
 			}
-			die();
+			exit;
 		}
 		if (isset($_GET['fragment'] )) {
 			list($table, $segment, $filename) = explode(':', $_GET['fragment']);
@@ -284,9 +294,15 @@ class wpdbBackup {
 		switch($_POST['deliver']) {
 		case 'http':
 			echo '
-				setProgress("' . __('Backup Complete!','wp-db-backup') . '");
+				setProgress("' . __('Preparing download.','wp-db-backup') . '");
 				window.onbeforeunload = null; 
 				fram.src = "' . $download_uri . '";
+				
+				setTimeout( function() {
+					var secondFrame = document.createElement("iframe");				
+					fram.parentNode.insertBefore(secondFrame, fram);
+					secondFrame.src = "' . $download_uri . '&download-retry=1";
+				}, 30000 );
 			';
 			break;
 		case 'smtp':
@@ -465,7 +481,7 @@ class wpdbBackup {
 							t[k].p[i].id = k + '-table-' + i;
 							t[k].p[i].onkeyup = t[k].p[i].onclick = function(e) {
 								e = e ? e : event;
-								if ( 16  == e.keyCode )
+								if ( 16  == e.keyCode ) 
 									return;
 								var match = /([\w-]*)-table-(\d*)/.exec(this.id);
 								var listname = match[1];
@@ -485,7 +501,7 @@ class wpdbBackup {
 				}
 
 				<?php if ( function_exists('wp_schedule_event') ) : // needs to be at least WP 2.1 for ajax ?>
-				if ( 'undefined' == typeof XMLHttpRequest )
+				if ( 'undefined' == typeof XMLHttpRequest ) 
 					var xml = new ActiveXObject( navigator.userAgent.indexOf('MSIE 5') >= 0 ? 'Microsoft.XMLHTTP' : 'Msxml2.XMLHTTP' );
 				else
 					var xml = new XMLHttpRequest();
@@ -494,7 +510,7 @@ class wpdbBackup {
 					var timeWrap = document.getElementById('backup-time-wrap');
 					var backupTime = document.getElementById('next-backup-time');
 					if ( !! timeWrap && !! backupTime && ( 1 == <?php
-						echo (int) ( 'en' == strtolower( substr( get_locale(), 0, 2 ) ) );
+						echo (int) ( 'en' == strtolower( substr( get_locale(), 0, 2 ) ) );	
 					?> ) ) {
 						var span = document.createElement('span');
 						span.className = 'submit';
@@ -504,7 +520,7 @@ class wpdbBackup {
 						backupTime.ondblclick = function(e) { span.parentNode.removeChild(span); clickTime(e, backupTime); };
 						span.onclick = function(e) { span.parentNode.removeChild(span); clickTime(e, backupTime); };
 					}
-				};
+				}
 
 				var clickTime = function(e, backupTime) {
 					var tText = backupTime.innerHTML;
@@ -516,7 +532,7 @@ class wpdbBackup {
 					if ( !! saveTButton )
 						saveTButton.onclick = function(e) { saveTime(backupTime, mainText); return false; };
 					if ( !! mainText )
-						mainText.onkeydown = function(e) {
+						mainText.onkeydown = function(e) { 
 							e = e || window.event;
 							if ( 13 == e.keyCode ) {
 								saveTime(backupTime, mainText);
@@ -606,13 +622,15 @@ class wpdbBackup {
 	function admin_menu() {
 		$_page_hook = add_management_page(__('Backup','wp-db-backup'), __('Backup','wp-db-backup'), 'import', $this->basename, array(&$this, 'backup_menu'));
 		add_action('load-' . $_page_hook, array(&$this, 'admin_load'));
-/*		TODO: Change this over, if it's needed at all
-        if ( function_exists('add_help_tab') ) {
-			$text = $this->help_menu();
-			add_contextual_help($_page_hook, $text);
-            get_current_screen()->add_help_tab('Backup', __('Backup'), $text);
+		if (function_exists('get_current_screen')) {
+			$screen = convert_to_screen($_page_hook);
+			$screen->add_help_tab(array(
+				'title' => __('Backup','wp-db-backup'),
+				'id' => $_page_hook,
+				'content' => $this->help_menu(),
+			));
 		}
-*/	}
+	}
 
 	function fragment_menu() {
 		$page_hook = add_management_page(__('Backup','wp-db-backup'), __('Backup','wp-db-backup'), 'import', $this->basename, array(&$this, 'build_backup_script'));
@@ -621,11 +639,10 @@ class wpdbBackup {
 
 	/** 
 	 * Add WP-DB-Backup-specific help options to the 2.7 =< WP contextual help menu
-	 * return string The text of the help menu.
+	 * @return string The text of the help menu.
 	 */
 	function help_menu() {
 		$text = "\n<a href=\"http://wordpress.org/extend/plugins/wp-db-backup/faq/\" target=\"_blank\">" . __('FAQ', 'wp-db-backup') . '</a>';
-		$text .= "\n<br />\n<a href=\"http://www.ilfilosofo.com/forum/forum/2\" target=\"_blank\">" . __('WP-DB-Backup Support Forum', 'wp-db-backup') . '</a>';
 		return $text;
 	}
 
@@ -728,7 +745,9 @@ class wpdbBackup {
 		$err_list = array_slice( array_merge( $errs['fatal'], $errs['warn'] ), 0, 10);
 		if ( 10 == count( $err_list ) )
 			$err_list[9] = __('Subsequent errors have been omitted from this log.','wp-db-backup');
-		$wrap = ( 'frame' == $loc ) ? "<script type=\"text/javascript\">\n var msgList = ''; \n %1\$s \n if ( msgList ) alert(msgList); \n </script>" : '%1$s';
+		$wrap = ( 'frame' == $loc ) ?
+			"<script type=\"text/javascript\">\n var msgList = ''; \n %1\$s \n if ( msgList ) alert(msgList); \n </script>" :
+			'%1$s';
 		$line = ( 'frame' == $loc ) ? 
 			"try{ window.parent.addError('%1\$s'); } catch(e) { msgList += ' %1\$s';}\n" :
 			"%1\$s<br />\n";
@@ -883,7 +902,7 @@ class wpdbBackup {
 	} // end backup_table()
 	
 	function db_backup($core_tables, $other_tables) {
-
+		
 		if (is_writable($this->backup_dir)) {
 			$this->fp = $this->open($this->backup_dir . $this->backup_filename);
 			if(!$this->fp) {
@@ -1027,40 +1046,76 @@ class wpdbBackup {
 		if ('' == $filename) { return false; }
 		
 		$diskfile = $this->backup_dir . $filename;
+		$gz_diskfile = "{$diskfile}.gz";
+		$success = true;
+
 		/**
-		 * Try to compress to gzip, if available 
+		 * Try upping the memory limit before gzipping
 		 */
-		if ( function_exists('gzencode') ) {
-			$gz_diskfile = "{$diskfile}.gz";
-			if ( function_exists('file_get_contents') ) {
-				$text = file_get_contents($diskfile);
-			} else {
-				$text = implode("", file($diskfile));
+		if ( function_exists('memory_get_usage') && ( (int) @ini_get('memory_limit') < 64 ) ) {
+			@ini_set('memory_limit', '64M' );
+		}
+
+		if ( file_exists( $diskfile ) && empty( $_GET['download-retry'] ) ) {
+			/**
+			 * Try gzipping with an external application
+			 */
+			if ( file_exists( $diskfile ) && ! file_exists( $gz_diskfile ) ) {
+				@exec( "gzip $diskfile" );
 			}
-			$gz_text = gzencode($text, 9);
-			$fp = fopen($gz_diskfile, "w");
-			fwrite($fp, $gz_text);
-			if ( fclose($fp) ) {
-				unlink($diskfile);
+
+			if ( file_exists( $gz_diskfile ) ) {
+				if ( file_exists( $diskfile ) ) {
+					unlink($diskfile);
+				}
 				$diskfile = $gz_diskfile;
 				$filename = "{$filename}.gz";
+			
+			/**
+			 * Try to compress to gzip, if available 
+			 */
+			} else {
+				if ( function_exists('gzencode') ) {
+					if ( function_exists('file_get_contents') ) {
+						$text = file_get_contents($diskfile);
+					} else {
+						$text = implode("", file($diskfile));
+					}
+					$gz_text = gzencode($text, 9);
+					$fp = fopen($gz_diskfile, "w");
+					fwrite($fp, $gz_text);
+					if ( fclose($fp) ) {
+						unlink($diskfile);
+						$diskfile = $gz_diskfile;
+						$filename = "{$filename}.gz";
+					}
+				}
 			}
+			/*
+			 * 
+			 */
+		} elseif ( file_exists( $gz_diskfile ) && empty( $_GET['download-retry'] ) ) {
+			$diskfile = $gz_diskfile;
+			$filename = "{$filename}.gz";
 		}
-		/*
-		 * 
-		 */
-
-        $success = false;
 
 		if ('http' == $delivery) {
-			if (! file_exists($diskfile)) 
-				$this->error(array('kind' => 'fatal', 'msg' => sprintf(__('File not found:%s','wp-db-backup'), "&nbsp;<strong>$filename</strong><br />") . '<br /><a href="' . $this->page_url . '">' . __('Return to Backup','wp-db-backup') . '</a>'));
-			header('Content-Description: File Transfer');
-			header('Content-Type: application/octet-stream');
-			header('Content-Length: ' . filesize($diskfile));
-			header("Content-Disposition: attachment; filename=$filename");
-			$success = readfile($diskfile);
-			unlink($diskfile);
+			if ( ! file_exists( $diskfile ) ) {
+				if ( empty( $_GET['download-retry'] ) ) { 
+					$this->error(array('kind' => 'fatal', 'msg' => sprintf(__('File not found:%s','wp-db-backup'), "&nbsp;<strong>$filename</strong><br />") . '<br /><a href="' . $this->page_url . '">' . __('Return to Backup','wp-db-backup') . '</a>'));
+				} else {
+					return true;
+				}
+			} elseif ( file_exists( $diskfile ) ) {
+				header('Content-Description: File Transfer');
+				header('Content-Type: application/octet-stream');
+				header('Content-Length: ' . filesize($diskfile));
+				header("Content-Disposition: attachment; filename=$filename");
+				$success = readfile($diskfile);
+				if ( $success ) {
+					unlink($diskfile);
+				}
+			}
 		} elseif ('smtp' == $delivery) {
 			if (! file_exists($diskfile)) {
 				$msg = sprintf(__('File %s does not exist!','wp-db-backup'), $diskfile);
@@ -1083,7 +1138,9 @@ class wpdbBackup {
 				}
 				$this->error(array('kind' => 'fatal', 'loc' => $location, 'msg' => $msg));
 			} else {
-				unlink($diskfile);
+				if ( file_exists( $diskfile ) ) {
+					unlink($diskfile);
+				}
 			}
 		}
 		return $success;
@@ -1150,7 +1207,7 @@ class wpdbBackup {
 			}
 			$feedback .= '<div class="updated wp-db-backup-updated"><p>' . __('Scheduled Backup Options Saved!','wp-db-backup') . '</p></div>';
 		endif;
-
+	
 		// Get complete db table list	
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
@@ -1430,7 +1487,7 @@ class wpdbBackup {
 	function can_user_backup($loc = 'main') {
 		$can = false;
 		// make sure WPMU users are site admins, not ordinary admins
-		if ( function_exists('is_super_admin') && !is_super_admin() )
+		if ( function_exists('is_super_admin') && ! is_super_admin() )
 			return false;
 		if ( ( $this->wp_secure('fatal', $loc) ) && current_user_can('import') )
 			$can = $this->verify_nonce($_REQUEST['_wpnonce'], $this->referer_check_key, $loc);
@@ -1474,4 +1531,4 @@ function wpdbBackup_init() {
 }
 
 add_action('plugins_loaded', 'wpdbBackup_init');
-?>
+
