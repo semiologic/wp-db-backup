@@ -5,7 +5,7 @@ Plugin URI: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Description: On-demand backup of your WordPress database. Navigate to <a href="edit.php?page=wp-db-backup">Tools &rarr; Backup</a> to get started.
 Author: Austin Matzko, Denis de Bernardy, Mike Koepke
 Author URI: hhttp://austinmatzko.com/
-Version: 2.3.2 fork
+Version: 2.3.3 fork
 
 Copyright 2013  Austin Matzko  (email : austin at pressedcode.com)
 
@@ -216,7 +216,7 @@ class wpdbBackup {
 		if ( function_exists('wp_create_nonce') )
 			$query_args = array_merge( $query_args, array('_wpnonce' => wp_create_nonce($this->referer_check_key)) );
 		$base = ( function_exists('site_url') ) ? site_url('', 'admin') : get_option('siteurl');
-		$this->page_url = add_query_arg( $query_args, $base . '/wp-admin/edit.php');
+		$this->page_url = admin_url(add_query_arg( $query_args, $base . '/wp-admin/edit.php'));
 	}
 
 	/*
@@ -290,7 +290,7 @@ class wpdbBackup {
 				setMeter(100);
 		';
 
-		$download_uri = add_query_arg('backup', $this->backup_filename, $this->page_url);
+		$download_uri = esc_url(add_query_arg('backup', $this->backup_filename, $this->page_url));
 		switch($_POST['deliver']) {
 		case 'http':
 			echo '
@@ -443,7 +443,7 @@ class wpdbBackup {
 				}
 				wp_redirect($this->page_url);
 			} elseif ('http' == $_POST['deliver']) {
-				$download_uri = add_query_arg('backup',$this->backup_file,$this->page_url);
+				$download_uri = esc_url_raw(add_query_arg('backup',$this->backup_file,$this->page_url));
 				wp_redirect($download_uri); 
 				exit;
 			}

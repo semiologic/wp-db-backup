@@ -3,7 +3,7 @@ Contributors: filosofo, Mike_Koepke
 Donate link: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
 Tags: mysql, database, backup, cron
 Requires at least: 3.3
-Tested up to: 4.0
+Tested up to: 4.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -104,6 +104,9 @@ When having the database backup emailed or sent to your browser for immediate do
    *** SECURITY WARNING ***
 
 == Changelog ==
+
+= 2.3.3 =
+Security update: Escape URLs returned by add_query_arg and remove_query_arg
 
 = 2.3.2 =
 
