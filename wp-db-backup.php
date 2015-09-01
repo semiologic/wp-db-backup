@@ -2,10 +2,10 @@
 /*
 Plugin Name: WordPress Database Backup Reloaded
 Plugin URI: http://austinmatzko.com/wordpress-plugins/wp-db-backup/
-Description: On-demand backup of your WordPress database. Navigate to <a href="edit.php?page=wp-db-backup">Tools &rarr; Backup</a> to get started.
+Description: RETIRED - On-demand backup of your WordPress database. Navigate to <a href="edit.php?page=wp-db-backup">Tools &rarr; Backup</a> to get started.
 Author: Austin Matzko, Denis de Bernardy, Mike Koepke
 Author URI: hhttp://austinmatzko.com/
-Version: 2.3.3 fork
+Version: 2.3.4 fork
 
 Copyright 2013  Austin Matzko  (email : austin at pressedcode.com)
 
@@ -25,6 +25,36 @@ Copyright 2013  Austin Matzko  (email : austin at pressedcode.com)
 
     Fork since v.2.2.3, by Denis de Bernardy <http://www.semiologic.com>
 */
+
+
+
+
+
+/*
+ * This plugin has been retired.  No further development will occur on it.
+ * */
+
+// Disable the plugin
+
+$active_plugins = get_option('active_plugins');
+
+if ( !is_array($active_plugins) )
+{
+	$active_plugins = array();
+}
+
+foreach ( (array) $active_plugins as $key => $plugin )
+{
+	if ( $plugin == 'wp-db-backup/wp-db-backup.php' )
+	{
+		unset($active_plugins[$key]);
+		break;
+	}
+}
+
+sort($active_plugins);
+
+update_option('active_plugins', $active_plugins);
 
 /**
  * Change WP_BACKUP_DIR if you want to

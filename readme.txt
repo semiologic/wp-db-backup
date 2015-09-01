@@ -8,6 +8,9 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+> *This plugin has been retired.  No further development will occur on it.*
+
+
 On-demand backup of your WordPress database.
 
 == Description ==
@@ -104,6 +107,10 @@ When having the database backup emailed or sent to your browser for immediate do
    *** SECURITY WARNING ***
 
 == Changelog ==
+
+= 2.3.4 =
+
+- Development/support has ceased on this plugin/fork.  Updated source and readme accordingly
 
 = 2.3.3 =
 Security update: Escape URLs returned by add_query_arg and remove_query_arg
