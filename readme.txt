@@ -8,12 +8,12 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-> *This plugin has been retired.  No further development will occur on it.*
-
 
 On-demand backup of your WordPress database.
 
 == Description ==
+
+> *This plugin has been retired.  No further development will occur on it.*
 
 WP-DB-Backup Reloaded allows you easily to backup your core WordPress database tables.  You may also backup other tables in the same database.
 
